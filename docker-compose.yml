@@ -1,0 +1,83 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: hrms_db
+    restart: always
+    environment:
+      POSTGRES_DB: hrms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - hrms_db_data:/var/lib/postgresql/data
+
+  user-service:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    container_name: user_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    depends_on:
+      - db
+    ports:
+      - "8081:8080"
+
+  auth-service:
+    build:
+      context: ./authService
+      dockerfile: Dockerfile
+    container_name: auth_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    depends_on:
+      - db
+      - user-service
+    ports:
+      - "8082:8080"
+
+  leave-service:
+    build:
+      context: ./LeaveService
+      dockerfile: Dockerfile
+    container_name: leave_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    depends_on:
+      - db
+    ports:
+      - "8083:8080"
+
+  training-service:
+    build:
+      context: ./TrainingService
+      dockerfile: Dockerfile
+    container_name: training_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+    depends_on:
+      - db
+    ports:
+      - "8084:8080"
+
+
+volumes:
+  hrms_db_data:
+networks:
+  hrms_network:
+    driver: bridge
