@@ -17,7 +17,7 @@ public interface IEmployeeService {
 
   List<EmployeesDto> getAllEmployees() ;
 
-  public List<TrainingDto> fetchTrainings() ;
+  List<TrainingDto> fetchTrainings() ;
 
   String enrollEmployee(Long empId , String trainingName);
 }

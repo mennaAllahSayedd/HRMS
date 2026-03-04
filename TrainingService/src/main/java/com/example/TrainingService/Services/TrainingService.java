@@ -7,8 +7,10 @@ import com.example.TrainingService.Entities.Training;
 import com.example.TrainingService.Exceptions.NoSuchTrainingFoundException;
 import com.example.TrainingService.Exceptions.TrainingAlreadyExistsException;
 import com.example.TrainingService.Mapper.TrainingMapper;
+import com.example.TrainingService.Repositories.TrainingEmployeeRepository;
 import com.example.TrainingService.Repositories.TrainingRepo;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +21,12 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-
+@Data
 public class TrainingService implements ITrainingService {
 
     private TrainingRepo trainingRepo;
     private final UserClient userClient;
-
+    TrainingEmployeeRepository trainingEmployeeRepository;
 
     public EmployeeDto enrollUserToTraining(Long id){
       EmployeeDto  employee= userClient.getEmployeeById(id);
@@ -110,6 +112,10 @@ public class TrainingService implements ITrainingService {
         return mappedTraining;
     }
 
+   @Override
+    public Boolean isEmployeeEnrolled(Long trainerNum , Long trainingNum){
 
+       return trainingEmployeeRepository.existsByIdTrainingIdAndIdEmployeeId(trainerNum, trainingNum);
+   }
 
 }

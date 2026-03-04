@@ -18,5 +18,7 @@ public interface ITrainingService {
 
     TrainingDto getTrainingByNum(Long trainingNum);
 
-    public List<TrainingDto> getAvailableTrainings();
+    List<TrainingDto> getAvailableTrainings();
+
+    Boolean isEmployeeEnrolled( Long trainerNum , Long trainingNum);
 }

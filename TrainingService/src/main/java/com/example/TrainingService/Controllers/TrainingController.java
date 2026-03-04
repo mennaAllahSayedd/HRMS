@@ -135,13 +135,16 @@ public class TrainingController {
 
     }
 
-    @GetMapping("/check")
-    public ResponseEntity<Boolean> isEmployeeEnrolled(@RequestParam Long empId ,@RequestParam String trainingName){
-        return null;
-    }
 
-    @GetMapping("/enroll")
-   public ResponseEntity<TrainingDto> enrollEmployee(@RequestParam Long empId,@RequestParam String trainingName){
-        return null;
+    @GetMapping("/{trainingId}/employees/{employeeId}/check")
+    public ResponseEntity<Boolean> isEnrolled(@PathVariable Long trainingId,
+            @PathVariable Long employeeId) {
+    try{
+        boolean enrolled = trainingService.isEmployeeEnrolled(trainingId, employeeId);
+        return ResponseEntity.ok(enrolled);
+    }
+        catch (RuntimeException e) {
+        throw new RuntimeException(e);
+    }
     }
 }

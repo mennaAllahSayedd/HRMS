@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -38,11 +38,6 @@ public class Training extends BaseEntity {
     @Enumerated(EnumType.STRING)
     TrainingStatus trainingStatus;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "training_enrollments",
-            joinColumns = @JoinColumn(name = "training_id")
-    )
-    @Column(name = "trainer_Id")
-    private List<Long> enrolledEmployeeIds = new ArrayList<>();
+    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TrainingEmployee> enrollments = new HashSet<>();
 }

@@ -12,7 +12,7 @@ public class TrainingMapper {
         trainingDto.setEndDate(training.getEndDate());
         trainingDto.setCapacity(training.getCapacity());
         trainingDto.setTrainingStatus(training.getTrainingStatus());
-        trainingDto.setTrainerId(training.getTrainerId());
+//        trainingDto.setTrainerId(training.getTrainerId());
         return trainingDto;
     }
 
@@ -24,7 +24,7 @@ public class TrainingMapper {
         training.setEndDate(trainingDto.getEndDate());
         training.setCapacity(trainingDto.getCapacity());
         training.setTrainingStatus(trainingDto.getTrainingStatus());
-        training.setTrainerId(trainingDto.getTrainerId());
+//        training.setTrainerId(trainingDto.getTrainerId());
         return training;
     }
 }
