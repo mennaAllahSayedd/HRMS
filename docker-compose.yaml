@@ -1,0 +1,190 @@
+services:
+  configserver:
+    build:
+      context: ./ConfigServer
+      dockerfile: Dockerfile
+    container_name: configserver
+    ports:
+      - "8077:8077"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8077/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - hrms_network
+
+  eurekaserver:
+    build: ./eurekaServer
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health | grep -q UP" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      configserver:
+        condition: service_healthy
+    networks:
+      - hrms_network
+
+#    environment:
+#      SPRING_APPLICATION_NAME: "eurekaserver"
+
+  gatewayserver:
+    build:
+      context: ./gatewayserver
+      dockerfile: Dockerfile
+    container_name: gatewayserver
+    ports:
+      - "9096:9096"
+    depends_on:
+      - eurekaserver
+      - configserver
+    networks:
+      - hrms_network
+
+  db:
+    image: postgres:15
+    container_name: hrms_db
+    restart: always
+    environment:
+      POSTGRES_DB: hrms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - hrms_db_data:/var/lib/postgresql/data
+    networks:
+      - hrms_network
+
+  user-service:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    container_name: user_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_CLOUD_CONFIG_URI: http://configserver:8077
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health | grep -q UP" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      configserver:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    networks:
+      - hrms_network
+    ports:
+      - "8085:8085"
+
+  leave-service:
+    build:
+      context: ./LeaveService
+      dockerfile: Dockerfile
+    container_name: leave_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_CLOUD_CONFIG_URI: http://configserver:8077
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health | grep -q UP" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      configserver:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    networks:
+      - hrms_network
+    ports:
+      - "9091:9091"
+
+  training-service:
+    build:
+      context: ./TrainingService
+      dockerfile: Dockerfile
+    container_name: training_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_CLOUD_CONFIG_URI: http://configserver:8077
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health | grep -q UP" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      configserver:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+    networks:
+      - hrms_network
+    ports:
+      - "9090:9090"
+
+  reporting-service:
+    build:
+      context: ./ReportingService
+      dockerfile: Dockerfile
+    container_name: reporting_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/hrms
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_CLOUD_CONFIG_URI: http://configserver:8077
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health | grep -q UP" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      configserver:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    networks:
+      - hrms_network
+    ports:
+      - "8084:8084"
+
+volumes:
+  hrms_db_data:
+
+networks:
+  hrms_network:
+    driver: bridge
+

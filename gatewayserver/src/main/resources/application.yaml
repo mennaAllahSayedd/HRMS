@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: gatewayserver
+  config:
+#    import: "optional:configserver:http://localhost:8077"
+     import: "optional:configserver:http://configserver:8077"
+

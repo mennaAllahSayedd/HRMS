@@ -1,0 +1,44 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eurekaserver
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+#spring:
+#  application:
+#    name: eurekaserver
+#  config:
+##    import: "optional:configserver:http://localhost:8077"
+#     import: "optional:configserver:http://configserver:8077"
+
+#server:
+#  port: 8761
+#
+#spring:
+#  application:
+#    name: eurekaserver
+#  cloud:
+#    config:
+#      enabled: false
+#      import-check:
+#        enabled: false
+#
+#eureka:
+#  client:
+#    register-with-eureka: false
+#    fetch-registry: false
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info
+#  endpoint:
+#    health:
+#      show-details: always

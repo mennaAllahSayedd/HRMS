@@ -2,8 +2,7 @@ spring:
   application:
     name: user-service
   config:
-    import: "optional:configserver:http://configserver:8077"
-#    import: "optional:configserver:http://localhost:8077"
+ل#    import: "optional:configserver:http://localhost:8077"
 
 #eureka:
 #  instance:
